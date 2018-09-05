@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"path"
@@ -113,13 +113,11 @@ func (s *syncer) download(ctx context.Context, objects []*object) error {
 			return err
 		}
 
-		file, err := os.OpenFile(dst, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, os.ModePerm)
+		file, err := ioutil.TempFile(filepath.Dir(dst), "."+filepath.Base(dst)+".")
 		if err != nil {
 			return err
 		}
 		defer file.Close()
-
-		log.Printf("Downloading %s to %s\n", fmt.Sprintf("s3://%s/%s", s.bucket, o.key), dst)
 
 		input := s3.GetObjectInput{Bucket: aws.String(s.bucket), Key: aws.String(o.key)}
 		if _, err := downloader.DownloadWithContext(ctx, file, &input); err != nil {
@@ -129,6 +127,12 @@ func (s *syncer) download(ctx context.Context, objects []*object) error {
 		if err := os.Chtimes(file.Name(), o.modTime, o.modTime); err != nil {
 			return err
 		}
+
+		if err := os.Rename(file.Name(), dst); err != nil {
+			return err
+		}
+
+		log.Printf("Updated %s with s3://%s/%s\n", dst, s.bucket, o.key)
 	}
 	return nil
 }
