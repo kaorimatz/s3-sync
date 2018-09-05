@@ -1,5 +1,7 @@
 # s3-sync
 
+[![Docker Build Status](https://img.shields.io/docker/build/kaorimatz/s3-sync.svg?style=flat-square)](https://hub.docker.com/r/kaorimatz/s3-sync)
+
 Sync directories and S3 prefixes.
 
 ## Usage
