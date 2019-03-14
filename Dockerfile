@@ -1,4 +1,4 @@
-FROM golang:1.11 as builder
+FROM golang:1.12 as builder
 
 WORKDIR $GOPATH/src/github.com/kaorimatz/s3-sync
 COPY . .
