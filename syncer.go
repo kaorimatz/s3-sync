@@ -2,11 +2,12 @@ package main
 
 import (
 	"context"
-	"io/ioutil"
 	"log"
+	"math/rand"
 	"os"
 	"path"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -113,7 +114,8 @@ func (s *syncer) download(ctx context.Context, objects []*object) error {
 			return err
 		}
 
-		file, err := ioutil.TempFile(filepath.Dir(dst), "."+filepath.Base(dst)+".")
+		fileName := filepath.Join(filepath.Dir(dst), "."+filepath.Base(dst)+strconv.Itoa(int(rand.Int31())))
+		file, err := os.OpenFile(fileName, os.O_WRONLY|os.O_CREATE|os.O_EXCL, os.ModePerm)
 		if err != nil {
 			return err
 		}
