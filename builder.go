@@ -85,7 +85,7 @@ func (b *builder) build(ctx context.Context) error {
 	}
 	defer os.Remove(file.Name())
 
-	if err := b.tar(b.paths, file); err != nil {
+	if err := createTarball(b.paths, file); err != nil {
 		return err
 	}
 
@@ -143,7 +143,7 @@ func (b *builder) baseLayer() (v1.Layer, error) {
 	}
 	defer file.Close()
 
-	if err := b.tar([]string{"/etc/ssl/certs/ca-certificates.crt", "/s3-sync"}, file); err != nil {
+	if err := createTarball([]string{"/etc/ssl/certs/ca-certificates.crt", "/s3-sync"}, file); err != nil {
 		return nil, err
 	}
 
@@ -164,48 +164,83 @@ func (b *builder) config() v1.Config {
 	return config
 }
 
-func (b *builder) tar(paths []string, w io.Writer) error {
+func createTarball(paths []string, w io.Writer) error {
 	writer := tar.NewWriter(w)
 	defer writer.Close()
 
-	for _, p := range paths {
-		err := filepath.Walk(p, func(path string, info os.FileInfo, err error) error {
+	added := make(map[string]bool)
+
+	for _, path := range paths {
+		path = strings.TrimPrefix(filepath.Clean(path), string(os.PathSeparator))
+
+		elements := strings.Split(path, string(os.PathSeparator))
+		for i := range elements {
+			p := filepath.Join(elements[:i+1]...)
+			if added[p] {
+				continue
+			}
+
+			info, err := os.Lstat(p)
 			if err != nil {
 				return err
 			}
 
-			if !info.Mode().IsRegular() {
+			if err := addToTarball(writer, p, info); err != nil {
+				return err
+			}
+			added[p] = true
+		}
+
+		err := filepath.Walk(path, func(p string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+			if added[p] {
 				return nil
 			}
 
-			header, err := tar.FileInfoHeader(info, "")
-			if err != nil {
+			if err := addToTarball(writer, p, info); err != nil {
 				return err
 			}
-
-			if header.Name, err = filepath.Abs(path); err != nil {
-				return err
-			}
-
-			if err := writer.WriteHeader(header); err != nil {
-				return err
-			}
-
-			file, err := os.Open(path)
-			if err != nil {
-				return err
-			}
-			defer file.Close()
-
-			if _, err := io.Copy(writer, file); err != nil {
-				return err
-			}
+			added[p] = true
 
 			return nil
 		})
 		if err != nil {
 			return err
 		}
+	}
+
+	return nil
+}
+
+func addToTarball(writer *tar.Writer, path string, info os.FileInfo) error {
+	header, err := tar.FileInfoHeader(info, "")
+	if err != nil {
+		return err
+	}
+	header.Name = path
+	if info.IsDir() {
+		header.Name += string(os.PathSeparator)
+		header.ModTime = time.Time{}
+	}
+
+	if err := writer.WriteHeader(header); err != nil {
+		return err
+	}
+
+	if !info.Mode().IsRegular() {
+		return nil
+	}
+
+	file, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	if _, err := io.Copy(writer, file); err != nil {
+		return err
 	}
 
 	return nil
