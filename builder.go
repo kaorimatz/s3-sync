@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"net/http"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -106,7 +105,7 @@ func (b *builder) build(ctx context.Context) error {
 
 	for tag, a := range b.auths {
 		auth := authnAuthenticatorFunc(func() (string, error) { return a.authorization(ctx) })
-		if err := remote.Write(tag, image, auth, http.DefaultTransport, remote.WriteOptions{}); err != nil {
+		if err := remote.Write(tag, image, remote.WithAuth(auth)); err != nil {
 			return err
 		}
 	}

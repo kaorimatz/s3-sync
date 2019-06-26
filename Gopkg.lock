@@ -13,6 +13,7 @@
     "aws/credentials",
     "aws/credentials/ec2rolecreds",
     "aws/credentials/endpointcreds",
+    "aws/credentials/processcreds",
     "aws/credentials/stscreds",
     "aws/csm",
     "aws/defaults",
@@ -21,6 +22,8 @@
     "aws/request",
     "aws/session",
     "aws/signer/v4",
+    "internal/ini",
+    "internal/s3err",
     "internal/sdkio",
     "internal/sdkrand",
     "internal/sdkuri",
@@ -42,20 +45,15 @@
     "service/s3/s3manager",
     "service/sts"
   ]
-  revision = "f831d5a0822a1ad72420ab18c6269bca1ddaf490"
-  version = "v1.15.11"
-
-[[projects]]
-  name = "github.com/go-ini/ini"
-  packages = ["."]
-  revision = "358ee7663966325963d4e8b2e1fbd570c5195153"
-  version = "v1.38.1"
+  revision = "e46d74c7f7fbfb66376097b38e466ab031864764"
+  version = "v1.20.8"
 
 [[projects]]
   branch = "master"
   name = "github.com/google/go-containerregistry"
   packages = [
     "pkg/authn",
+    "pkg/internal/retry",
     "pkg/name",
     "pkg/v1",
     "pkg/v1/empty",
@@ -64,26 +62,48 @@
     "pkg/v1/random",
     "pkg/v1/remote",
     "pkg/v1/remote/transport",
+    "pkg/v1/stream",
     "pkg/v1/tarball",
     "pkg/v1/types",
     "pkg/v1/v1util"
   ]
-  revision = "029d4b93c31fc9e5f7ab066313372c9be77af46b"
+  revision = "ca8b66cb1b793f7fb0e3c191ad9a37eb3dc80ea0"
 
 [[projects]]
   name = "github.com/jmespath/go-jmespath"
   packages = ["."]
-  revision = "0b12d6b5"
+  revision = "c2b33e84"
 
 [[projects]]
   name = "github.com/robfig/cron"
   packages = ["."]
   revision = "b41be1df696709bb6395fe435af20370037c0b4c"
-  version = "v1.1"
+  version = "v1.2.0"
+
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/sync"
+  packages = ["errgroup"]
+  revision = "112230192c580c3556b8cee6403af37a4fc5f28c"
+
+[[projects]]
+  branch = "master"
+  name = "k8s.io/apimachinery"
+  packages = [
+    "pkg/util/runtime",
+    "pkg/util/wait"
+  ]
+  revision = "961b39a1baa06f6c52bdd048a809b9f5b47f1337"
+
+[[projects]]
+  name = "k8s.io/klog"
+  packages = ["."]
+  revision = "d98d8acdac006fb39831f1b25640813fef9c314f"
+  version = "v0.3.3"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "b8a539841bd70b9ebf80340b2e8d4db72db42e20d3e8594deaa4c788de23e599"
+  inputs-digest = "d39dd5b11720563a6221d06733bb914cf902648466745594fe91a23261418183"
   solver-name = "gps-cdcl"
   solver-version = 1

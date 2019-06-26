@@ -20,22 +20,18 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/google/go-containerregistry/pkg/authn"
 	"github.com/google/go-containerregistry/pkg/name"
 	"github.com/google/go-containerregistry/pkg/v1/remote/transport"
 )
 
-// DeleteOptions are used to expose optional information to guide or
-// control the image deletion.
-type DeleteOptions struct {
-	// TODO(mattmoor): Fail on not found?
-	// TODO(mattmoor): Delete tag and manifest?
-}
-
 // Delete removes the specified image reference from the remote registry.
-func Delete(ref name.Reference, auth authn.Authenticator, t http.RoundTripper, do DeleteOptions) error {
+func Delete(ref name.Reference, options ...Option) error {
+	o, err := makeOptions(ref.Context().Registry, options...)
+	if err != nil {
+		return err
+	}
 	scopes := []string{ref.Scope(transport.DeleteScope)}
-	tr, err := transport.New(ref.Context().Registry, auth, t, scopes)
+	tr, err := transport.New(ref.Context().Registry, o.auth, o.transport, scopes)
 	if err != nil {
 		return err
 	}
