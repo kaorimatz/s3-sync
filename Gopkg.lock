@@ -88,6 +88,12 @@
 
 [[projects]]
   branch = "master"
+  name = "golang.org/x/sys"
+  packages = ["unix"]
+  revision = "c5567b49c5d04a5f83870795b8c0e2df43a8ce32"
+
+[[projects]]
+  branch = "master"
   name = "k8s.io/apimachinery"
   packages = [
     "pkg/util/runtime",
@@ -104,6 +110,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "d39dd5b11720563a6221d06733bb914cf902648466745594fe91a23261418183"
+  inputs-digest = "6c8578911aa101907a465282a033939cc2e16797831837378317aabe669a7a07"
   solver-name = "gps-cdcl"
   solver-version = 1

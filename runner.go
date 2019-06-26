@@ -61,7 +61,7 @@ func (r *oneshotRunner) run(ctx context.Context) error {
 func (r *oneshotRunner) sync(ctx context.Context) error {
 	log.Println("Starting syncing...")
 	for _, s := range r.specs {
-		syncer := newSyncer(s.region, s.bucket, s.prefix, s.dst, r.awsClientFactory)
+		syncer := newSyncer(s.region, s.bucket, s.prefix, s.dst, s.linkObjectKeyRegexp, r.awsClientFactory)
 		if _, err := syncer.sync(ctx); err != nil {
 			return fmt.Errorf("error syncing: %v", err)
 		}
@@ -126,7 +126,7 @@ func (r *cronRunner) run(ctx context.Context) error {
 func (r *cronRunner) startSyncers(ctx context.Context) error {
 	var syncers []*syncer
 	for _, s := range r.specs {
-		syncer := newSyncer(s.region, s.bucket, s.prefix, s.dst, r.awsClientFactory)
+		syncer := newSyncer(s.region, s.bucket, s.prefix, s.dst, s.linkObjectKeyRegexp, r.awsClientFactory)
 		if s.schedule == "" || s.onStart {
 			syncers = append(syncers, syncer)
 		}

@@ -214,7 +214,15 @@ func createTarball(paths []string, w io.Writer) error {
 }
 
 func addToTarball(writer *tar.Writer, path string, info os.FileInfo) error {
-	header, err := tar.FileInfoHeader(info, "")
+	var link string
+	var err error
+	if info.Mode()&os.ModeSymlink != 0 {
+		if link, err = os.Readlink(path); err != nil {
+			return err
+		}
+	}
+
+	header, err := tar.FileInfoHeader(info, link)
 	if err != nil {
 		return err
 	}

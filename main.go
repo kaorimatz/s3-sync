@@ -9,18 +9,20 @@ import (
 	"io"
 	"log"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
 )
 
 type syncSpec struct {
-	schedule string
-	region   string
-	bucket   string
-	prefix   string
-	dst      string
-	onStart  bool
+	schedule            string
+	region              string
+	bucket              string
+	prefix              string
+	dst                 string
+	onStart             bool
+	linkObjectKeyRegexp *regexp.Regexp
 }
 
 func (s *syncSpec) toCSV() (string, error) {
@@ -35,6 +37,7 @@ func (s *syncSpec) toCSV() (string, error) {
 	record = append(record, "prefix="+s.prefix)
 	record = append(record, "dst="+s.dst)
 	record = append(record, fmt.Sprintf("on-start=%t", s.onStart))
+	record = append(record, fmt.Sprintf("link-object-key-pattern=%s", s.linkObjectKeyRegexp))
 
 	var b bytes.Buffer
 	w := csv.NewWriter(&b)
@@ -70,6 +73,10 @@ func (s *syncSpec) fromCSV(str string) error {
 				s.dst = value
 			case "on-start":
 				if s.onStart, err = strconv.ParseBool(value); err != nil {
+					return err
+				}
+			case "link-object-key-pattern":
+				if s.linkObjectKeyRegexp, err = regexp.Compile(value); err != nil {
 					return err
 				}
 			default:
